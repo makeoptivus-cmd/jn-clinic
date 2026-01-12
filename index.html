@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JN Physiotherapy & Rehabilitation Clinic</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="h-full font-body bg-slate-50 text-slate-800">
+
+  <div id="app-container" class="w-full h-full overflow-auto">
+
+    <!-- Floating Call Button -->
+    <a href="tel:+919940659899" id="floating-call-btn"
+      class="floating-btn fixed top-4 right-4 z-50 flex items-center gap-2 px-5 py-3 rounded-full text-white font-bold text-sm shadow-lg">
+      📞 Book Appointment
+    </a>
+
+    <!-- HERO -->
+    <section class="hero-gradient min-h-screen flex flex-col justify-center px-6 py-20 text-center">
+      <h1 class="font-heading text-4xl md:text-5xl text-white font-bold mb-4">
+        JN Physiotherapy And Rehabilitation Clinic
+      </h1>
+      <p class="text-teal-100 text-xl mb-8">
+        Expert Care for Your Recovery Journey
+      </p>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="py-16 px-6 bg-teal-50">
+      <div class="max-w-lg mx-auto space-y-4 services-container">
+
+        <div class="service-stack-card" style="top:160px">
+          <h3>Interferential Therapy</h3>
+          <p>Deep tissue pain relief & muscle rehab.</p>
+        </div>
+
+        <div class="service-stack-card" style="top:172px">
+          <h3>TENS Therapy</h3>
+          <p>Electrical nerve stimulation for pain.</p>
+        </div>
+
+        <div class="service-stack-card" style="top:184px">
+          <h3>Wax Bath Therapy</h3>
+          <p>Heat therapy for joints & arthritis.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="reviews" class="py-16 px-6 bg-white">
+      <div class="max-w-lg mx-auto">
+
+        <form id="review-form" class="space-y-4 mb-6">
+          <input id="reviewer-name" placeholder="Your Name" class="input" required />
+          <textarea id="review-text" placeholder="Your Review" class="input" required></textarea>
+          <input type="hidden" id="rating-value" value="0">
+          <button class="btn-primary">Submit Review</button>
+        </form>
+
+        <div id="reviews-list" class="space-y-4"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Custom JS -->
+  <script src="script.js"></script>
+</body>
+</html>
