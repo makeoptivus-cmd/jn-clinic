@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JN Physiotherapy &amp; Rehabilitation Clinic</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/_sdk/element_sdk.js"></script>
-  <script src="/_sdk/data_sdk.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -157,7 +157,7 @@
       <div class="flex flex-col items-center text-center"><!-- Doctor Avatar -->
       <div class="w-32 h-32 rounded-full p-1 mb-4 shadow-lg"
      style="background: linear-gradient(135deg,#0f766e,#14b8a6);">
-  <img src="C:\Users\sivar\OneDrive\Pictures\Camera Roll\WIN_20251120_16_05_37_Pro.jpg"
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxvkxNeoR-kkAwn1wvDhXx29Uea_NLwIMEkQ&s"
        class="w-full h-full rounded-full object-cover bg-white" />
 </div>
        <h3 id="doctor-name-display" class="font-heading text-2xl font-bold mb-1" style="color: #0f766e;">Dr. Kumani J</h3>
@@ -364,7 +364,15 @@
     let reviews = [];
     let selectedRating = 0;
     let isSubmitting = false;
-    
+    // Supabase configuration
+const SUPABASE_URL = "https://hqjhnwsvgygexfxkcmdt.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2ok_2ecW-qK_KBsVsMIOuw_DxF9AAMK";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
     // Initialize Element SDK
     if (window.elementSdk) {
       window.elementSdk.init({
@@ -413,24 +421,7 @@
     }
     
     // Initialize Data SDK
-    const dataHandler = {
-      onDataChanged(data) {
-        reviews = data;
-        renderReviews();
-      }
-    };
-    
-    async function initDataSdk() {
-      if (window.dataSdk) {
-        const result = await window.dataSdk.init(dataHandler);
-        if (!result.isOk) {
-          showToast('Failed to load reviews');
-        }
-      }
-    }
-    
-    initDataSdk();
-    
+   
     // Update UI based on config
     function updateUI() {
       const heroClinicName = document.getElementById('hero-clinic-name');
@@ -513,103 +504,105 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Submitting...';
       
-      if (window.dataSdk) {
-        const result = await window.dataSdk.create({
-          name: name,
-          rating: rating,
-          review: reviewText,
-          createdAt: new Date().toISOString()
-        });
-        
-        if (result.isOk) {
-          showToast('Thank you for your review!');
-          reviewForm.reset();
-          selectedRating = 0;
-          updateStars();
-        } else {
-          showToast('Failed to submit review. Please try again.');
-        }
-      }
+     const { error } = await supabase
+  .from('reviews')
+  .insert([
+    {
+      name: name,
+      rating: rating,
+      review: reviewText
+    }
+  ]);
+
+if (error) {
+  console.error(error);
+  showToast('Failed to submit review');
+} else {
+  showToast('Thank you for your review!');
+  reviewForm.reset();
+  selectedRating = 0;
+  updateStars();
+  loadReviews();
+}
+
       
       isSubmitting = false;
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit Review';
     });
     
-    // Render Reviews
-    function renderReviews() {
-      const reviewsList = document.getElementById('reviews-list');
-      const emptyReviews = document.getElementById('empty-reviews');
-      
-      if (reviews.length === 0) {
-        reviewsList.innerHTML = '';
-        emptyReviews.classList.remove('hidden');
-        return;
-      }
-      
-      emptyReviews.classList.add('hidden');
-      
-      // Sort by most recent
-      const sortedReviews = [...reviews].sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      
-      const existingIds = new Set([...reviewsList.children].map(el => el.dataset.id));
-      const newIds = new Set(sortedReviews.map(r => r.__backendId));
-      
-      // Remove deleted reviews
-      [...reviewsList.children].forEach(el => {
-        if (!newIds.has(el.dataset.id)) {
-          el.remove();
-        }
-      });
-      
-      // Add or update reviews
-      sortedReviews.forEach((review, index) => {
-        let card = reviewsList.querySelector(`[data-id="${review.__backendId}"]`);
-        
-        if (!card) {
-          card = document.createElement('div');
-          card.className = 'review-card rounded-2xl p-5 shadow-md fade-in';
-          card.style.backgroundColor = '#ffffff';
-          card.dataset.id = review.__backendId;
-          
-          if (index === 0) {
-            reviewsList.prepend(card);
-          } else {
-            const prevCard = reviewsList.querySelector(`[data-id="${sortedReviews[index - 1].__backendId}"]`);
-            if (prevCard) {
-              prevCard.after(card);
-            } else {
-              reviewsList.appendChild(card);
-            }
-          }
-        }
-        
-        const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-        const date = new Date(review.createdAt).toLocaleDateString('en-IN', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
-        });
-        
-        card.innerHTML = `
-          <div class="flex items-start gap-3 mb-3">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0" style="background: linear-gradient(135deg, #0f766e, #14b8a6);">
-              ${review.name.charAt(0).toUpperCase()}
-            </div>
-            <div class="flex-1">
-              <div class="flex items-center justify-between">
-                <h4 class="font-semibold" style="color: #0f766e;">${escapeHtml(review.name)}</h4>
-                <span class="text-xs text-slate-400">${date}</span>
-              </div>
-              <div class="text-amber-400 text-sm">${stars}</div>
-            </div>
+   // Render Reviews (UI ONLY)
+function renderReviews() {
+  const reviewsList = document.getElementById('reviews-list');
+  const emptyReviews = document.getElementById('empty-reviews');
+
+  if (!reviews || reviews.length === 0) {
+    reviewsList.innerHTML = '';
+    emptyReviews.classList.remove('hidden');
+    return;
+  }
+
+  emptyReviews.classList.add('hidden');
+  reviewsList.innerHTML = '';
+
+  // Sort by latest first
+  const sortedReviews = [...reviews].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  sortedReviews.forEach(review => {
+    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+
+    const card = document.createElement('div');
+    card.className = 'review-card rounded-2xl p-5 shadow-md bg-white';
+
+    card.innerHTML = `
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+             style="background: linear-gradient(135deg, #0f766e, #14b8a6);">
+          ${review.name.charAt(0).toUpperCase()}
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-teal-700">${escapeHtml(review.name)}</h4>
+            <span class="text-xs text-slate-400">
+              ${new Date(review.createdAt).toLocaleDateString('en-IN')}
+            </span>
           </div>
-          <p class="text-slate-600 text-sm leading-relaxed">${escapeHtml(review.review)}</p>
-        `;
-      });
-    }
+          <div class="text-amber-400 text-sm">${stars}</div>
+        </div>
+      </div>
+      <p class="text-slate-600 text-sm">${escapeHtml(review.review)}</p>
+    `;
+
+    reviewsList.appendChild(card);
+  });
+}
+
+
+// Load Reviews (SUPABASE ONLY)
+async function loadReviews() {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    showToast('Failed to load reviews');
+    return;
+  }
+
+  reviews = data.map(r => ({
+    __backendId: r.id,
+    name: r.name,
+    rating: r.rating,
+    review: r.review,
+    createdAt: r.created_at
+  }));
+
+  renderReviews();
+}
     
     // Toast Notification
     function showToast(message) {
@@ -635,6 +628,7 @@
     
     // Initial UI update
     updateUI();
+   loadReviews();
   </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bcaf3e2a04ad9c7',t:'MTc2ODIwMzA3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
