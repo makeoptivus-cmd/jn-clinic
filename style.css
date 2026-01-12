@@ -1,0 +1,59 @@
+/* Fonts */
+.font-heading {
+  font-family: 'Playfair Display', serif;
+}
+.font-body {
+  font-family: 'Source Sans 3', sans-serif;
+}
+
+/* Gradient */
+.hero-gradient {
+  background: linear-gradient(135deg, #0f766e, #0d9488, #14b8a6);
+}
+
+/* Floating Button */
+.floating-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 20px rgba(245,158,11,.5); }
+  50% { box-shadow: 0 0 35px rgba(245,158,11,.8); }
+}
+
+/* Service Stack Cards */
+.services-container {
+  position: relative;
+}
+
+.service-stack-card {
+  position: sticky;
+  background: white;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  transition: transform .3s ease;
+}
+
+.service-stack-card:hover {
+  transform: scale(1.03);
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Button */
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: #0d9488;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+}
